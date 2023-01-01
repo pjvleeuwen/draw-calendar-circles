@@ -1,70 +1,117 @@
-class YearCirle {
-  constructor(canvasElement, size, padding, bandWidth) {
+class PieCanvas {
+  constructor(canvasElement, size) {
     this.canvas = canvasElement;
     this.canvas.height = size;
     this.canvas.width = size;
     this.context = this.canvas.getContext("2d");
-    this.radius = size - 2 * padding
     this.center = size / 2;
   }
 
-  draw() {
-    return this.height * this.width;
+  drawPieSlice(radius, startAngle, endAngle, fillColor, strokeColor) {
+    // expect start-/endAngle to be 1 = 360 DEG = 2*PI RAD
+    // substract 0.25 to start North instead of East
+    var startAngleRadian = (startAngle - 0.25) * 2 * Math.PI
+    var endAngleRadian = (endAngle - 0.25) * 2 * Math.PI
+    this.context.save();
+    this.context.fillStyle = fillColor;
+    this.context.strokeStyle = strokeColor;
+    this.context.beginPath();
+    this.context.moveTo(this.center, this.center);
+    this.context.arc(this.center, this.center, radius, startAngleRadian, endAngleRadian);
+    this.context.closePath();
+    this.context.fill();
+    this.context.stroke();
+    this.context.restore();
   }
-  function drawPieSlice(
-    ctx,
-    centerX,
-    centerY,
-    radius,
-    startAngle,
-    endAngle,
-    fillColor,
-    strokeColor
-  ) {
-    ctx.save();
-    ctx.fillStyle = fillColor;
-    ctx.strokeStyle = strokeColor;
-    ctx.beginPath();
-    ctx.moveTo(centerX, centerY);
-    ctx.arc(centerX, centerY, radius, startAngle, endAngle);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-    ctx.restore();
+
+  drawCircle(radius, strokeColor) {
+    this.context.save();
+    this.context.strokeStyle = strokeColor;
+    this.context.beginPath();
+    this.context.arc(this.center, this.center, radius, 0, 2 * Math.PI);
+    this.context.stroke();
+    this.context.restore();
   }
 }
 
-const square = new YearCirle(document.getElementById("myCanvas"), 500, 25);
+// function drawArc(ctx, centerX, centerY, radius, startAngle, endAngle, color) {
+//   ctx.save();
+//   ctx.strokeStyle = color;
+//   ctx.beginPath();
+//   ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+//   ctx.stroke();
+//   ctx.restore();
+// }
+//       drawArc(
+//         this.ctx,
+//         this.canvas.width / 2,
+//         this.canvas.height / 2,
+//         this.options.doughnutHoleSize * this.radius,
+//         0,
+//         2 * Math.PI,
+//         "#000"
+//       );
 
-var myCanvas = document.getElementById("myCanvas");
-myCanvas.width = 500;
-myCanvas.height = 500;
 
-var ctx = myCanvas.getContext("2d");
+class SegmentedRings {
+  constructor(canvasElement, size, padding, ringWidth) {
+    this.canvas = new PieCanvas(canvasElement, size);
+    this.size = size - 2 * padding;
+    this.ringWidth = ringWidth;
+  }
 
-function drawLine(ctx, startX, startY, endX, endY, color) {
-  ctx.save();
-  ctx.strokeStyle = color;
-  ctx.beginPath();
-  ctx.moveTo(startX, startY);
-  ctx.lineTo(endX, endY);
-  ctx.stroke();
-  ctx.restore();
+  drawSegment(ring, units, startUnit, endUnit, fillColor, strokeColor) {
+    var radius = this.size / 2 - ring * this.ringWidth;
+    var startAngle = 1 / units * startUnit;
+    var endAngle = 1 / units * endUnit;
+    this.canvas.drawPieSlice(radius, startAngle, endAngle, fillColor, strokeColor);
+  }
+
+  drawHole(ring, fillColor, strokeColor) {
+    var radius = this.size / 2 - ring * this.ringWidth;
+    this.canvas.drawPieSlice(radius, 0, 2 * Math.PI, fillColor, fillColor);
+    this.canvas.drawCircle(radius, strokeColor);
+  }
 }
 
-function drawArc(ctx, centerX, centerY, radius, startAngle, endAngle, color) {
-  ctx.save();
-  ctx.strokeStyle = color;
-  ctx.beginPath();
-  ctx.arc(centerX, centerY, radius, startAngle, endAngle);
-  ctx.stroke();
-  ctx.restore();
+const canvasElement = document.getElementById("canvas");
+const rings = new SegmentedRings(canvasElement, 500, 20, 30);
+for (let i = 0; i < 365; i++) {
+  var fillColor = i % 7 < 2 ? "#d9d9d9" : "#b3b3b3"
+  rings.drawSegment( 0 , 365 ,   i ,  i + 1 , fillColor , "#000");
 }
-
-
-function drawDays(ctx, centerX, centerY, radius) {
-
+for (let i = 0; i < 365 - 7; i = i + 7) {
+  rings.drawSegment( 1 , 365 ,   i ,  i + 7 , "#fff" , "#000");
 }
-// drawPieSlice(ctx, centerX, centerY, radius, startAngle, endAngle, fillColor, strokeColor)
-drawPieSlice(ctx, 250, 250, 250, Math.PI/1, Math.PI/2 + Math.PI/3, "#F00", "#000");
-drawPieSlice(ctx, 250, 250, 220, Math.PI/3, Math.PI/2 + Math.PI/2, "#0F0", "#000");
+rings.drawSegment( 2 , 365 ,   0 ,  31 , "#d4cae0" , "#000");
+rings.drawSegment( 2 , 365 ,  31 ,  59 , "#c5d3ed" , "#000");
+rings.drawSegment( 2 , 365 ,  59 ,  90 , "#c4dbe0" , "#000");
+rings.drawSegment( 2 , 365 ,  90 , 120 , "#c3e2d2" , "#000");
+rings.drawSegment( 2 , 365 , 120 , 151 , "#d1efbf" , "#000");
+rings.drawSegment( 2 , 365 , 151 , 181 , "#def3bf" , "#000");
+rings.drawSegment( 2 , 365 , 181 , 212 , "#eaf6bf" , "#000");
+rings.drawSegment( 2 , 365 , 212 , 243 , "#f9ecb2" , "#000");
+rings.drawSegment( 2 , 365 , 243 , 273 , "#f8e2a9" , "#000");
+rings.drawSegment( 2 , 365 , 273 , 304 , "#f6d79f" , "#000");
+rings.drawSegment( 2 , 365 , 304 , 334 , "#e9cab3" , "#000");
+rings.drawSegment( 2 , 365 , 334 , 365 , "#dfcaca" , "#000");
+
+rings.drawSegment( 3 , 365 , -11 ,  79 , "#c7caff" , "#000");
+rings.drawSegment( 3 , 365 ,  79 , 171 , "#c1ebc0" , "#000");
+rings.drawSegment( 3 , 365 , 171 , 263 , "#fafabe" , "#000");
+rings.drawSegment( 3 , 365 , 263 , 354 , "#f6ca94" , "#000");
+
+rings.drawHole(4, "#FFF","#000")
+
+// const canvas = new PieCanvas(document.getElementById("canvas"), 500);
+// const padding = 10;
+// const radius = (500 - 2 * padding) / 2;
+// //     drawPieSlice(radius     , startAngle, endAngle, fillColor, strokeColor)
+// canvas.drawPieSlice(radius -   0,       0.00,     0.50,    "#F00",      "#000");
+// canvas.drawPieSlice(radius -  20,       0.25,     0.75,    "#0F0",      "#000");
+// canvas.drawPieSlice(radius -  40,       0.50,     1.00,    "#00F",      "#000");
+// canvas.drawPieSlice(radius -  60,       0.75,     1.25,    "#FF0",      "#000");
+// canvas.drawPieSlice(radius -  80,       1.00,     1.50,    "#0FF",      "#000");
+// canvas.drawPieSlice(radius - 100,       1.25,     1.75,    "#F0F",      "#000");
+// canvas.drawPieSlice(radius - 120,       1.50,     2.00,    "#770",      "#000");
+// canvas.drawPieSlice(radius - 140,       1.75,     2.25,    "#077",      "#000");
