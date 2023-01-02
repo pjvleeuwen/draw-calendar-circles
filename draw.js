@@ -34,25 +34,6 @@ class PieCanvas {
   }
 }
 
-// function drawArc(ctx, centerX, centerY, radius, startAngle, endAngle, color) {
-//   ctx.save();
-//   ctx.strokeStyle = color;
-//   ctx.beginPath();
-//   ctx.arc(centerX, centerY, radius, startAngle, endAngle);
-//   ctx.stroke();
-//   ctx.restore();
-// }
-//       drawArc(
-//         this.ctx,
-//         this.canvas.width / 2,
-//         this.canvas.height / 2,
-//         this.options.doughnutHoleSize * this.radius,
-//         0,
-//         2 * Math.PI,
-//         "#000"
-//       );
-
-
 class SegmentedRings {
   constructor(canvasElement, size, padding, ringWidth) {
     this.canvas = new PieCanvas(canvasElement, size);
@@ -102,16 +83,3 @@ rings.drawSegment( 3 , 365 , 171 , 263 , "#fafabe" , "#000");
 rings.drawSegment( 3 , 365 , 263 , 354 , "#f6ca94" , "#000");
 
 rings.drawHole(4, "#FFF","#000")
-
-// const canvas = new PieCanvas(document.getElementById("canvas"), 500);
-// const padding = 10;
-// const radius = (500 - 2 * padding) / 2;
-// //     drawPieSlice(radius     , startAngle, endAngle, fillColor, strokeColor)
-// canvas.drawPieSlice(radius -   0,       0.00,     0.50,    "#F00",      "#000");
-// canvas.drawPieSlice(radius -  20,       0.25,     0.75,    "#0F0",      "#000");
-// canvas.drawPieSlice(radius -  40,       0.50,     1.00,    "#00F",      "#000");
-// canvas.drawPieSlice(radius -  60,       0.75,     1.25,    "#FF0",      "#000");
-// canvas.drawPieSlice(radius -  80,       1.00,     1.50,    "#0FF",      "#000");
-// canvas.drawPieSlice(radius - 100,       1.25,     1.75,    "#F0F",      "#000");
-// canvas.drawPieSlice(radius - 120,       1.50,     2.00,    "#770",      "#000");
-// canvas.drawPieSlice(radius - 140,       1.75,     2.25,    "#077",      "#000");
